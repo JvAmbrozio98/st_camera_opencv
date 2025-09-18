@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px 
 import pandas as pd
+import sys
 
 st.set_page_config(layout='wide')
 
@@ -53,12 +54,15 @@ def plot_histogram_each_band(picture):
 
 
 
-st.title("OPENCV: Histograma, Imagem Negativa e Imagem Binarizada")
+st.title("TOPENCV: Histograma, Imagem Negativa e Imagem Binarizada")
 
+# Escolhe entre câmera local ou upload de arquivo
+enable_camera = st.checkbox("Enable camera (Local only)")
 
-enable = st.checkbox("Enable camera")
-picture = st.camera_input("Take a picture", disabled=not enable)
-
+if enable_camera and ("localhost" in st.get_option("server.address") or sys.platform.startswith("win")):
+    picture = st.camera_input("Take a picture")
+else:
+    picture = st.file_uploader("Upload an image", type=["jpg","png","jpeg"])
 if picture:
     st.subheader("Imagens Processadas")
     img_col1, img_col2 = st.columns(2)
