@@ -6,7 +6,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import pandas as pd
 import sys
-
+from PIL import Image
+import io
 st.set_page_config(layout='wide')
 
 def binary_image(picture): 
@@ -15,6 +16,7 @@ def binary_image(picture):
     gray =  cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _,bin_image = cv2.threshold(gray,127,255,cv2.THRESH_BINARY)
     st.image(bin_image,use_container_width=True)
+    return bin_image
 
 
 def negative_image(picture):
@@ -23,6 +25,7 @@ def negative_image(picture):
     negative_img = 255 - image
     negative_img = cv2.cvtColor(negative_img, cv2.COLOR_BGR2RGB)
     st.image(negative_img,use_container_width=True)
+    return negative_img
 
 
 def plot_histogram_each_band(picture):
@@ -92,9 +95,20 @@ if picture:
     st.subheader("Imagens Processadas")
     img_col1, img_col2 = st.columns(2)
     with img_col1:
-        binary_image(picture)
+       bin_img = binary_image(picture)
+       png_bin_img = Image.fromarray(bin_img)
+
+       img_bytes = io.BytesIO()  # cria buffer vazio
+       png_bin_img.save(img_bytes, format="PNG")
+       img_bytes.seek(0)
+       negative_down_btn = st.download_button(label="Baixar",data=img_bytes,file_name="binary_image.jpg",mime="image/png",key='bin_btn')
     with img_col2:
-        negative_image(picture)
+        neg_imag = negative_image(picture)
+        png_neg_img = Image.fromarray(neg_imag)
+        img_bytes = io.BytesIO()
+        png_neg_img.save(img_bytes,format="PNG")
+        img_bytes.seek(0)
+        st.download_button(label="Baixar",data=img_bytes,file_name="negative_image.jpg",mime="image/png",key="neg_btn")
 
     st.subheader("Histogramas RGB")
     hist_col1, hist_col2, hist_col3 = st.columns(3)
